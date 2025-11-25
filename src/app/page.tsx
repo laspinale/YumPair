@@ -1,3 +1,7 @@
+"use client";
+
+import { type ChangeEvent, type KeyboardEvent, useRef, useState } from "react";
+
 const trendingPairings = [
   {
     title: "Spicy Mango + Grilled Halloumi",
@@ -67,6 +71,62 @@ function Rating({ value }: { value: number }) {
 }
 
 export default function Home() {
+  const [description, setDescription] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
+  const tagInputRef = useRef<HTMLInputElement>(null);
+
+  const addTagsFromSegments = (value: string) => {
+    const parts = value.split(",");
+    const remainder = parts.pop() ?? "";
+    const candidates = parts.map(part => part.trim()).filter(Boolean);
+
+    if (candidates.length) {
+      setTags(currentTags => {
+        const existing = new Set(currentTags.map(tag => tag.toLowerCase()));
+        const additions = candidates.filter(candidate => {
+          const lower = candidate.toLowerCase();
+
+          if (existing.has(lower)) return false;
+
+          existing.add(lower);
+          return true;
+        });
+
+        return additions.length ? [...currentTags, ...additions] : currentTags;
+      });
+    }
+
+    setTagInput(remainder.trimStart());
+  };
+
+  const handleTagChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+
+    if (value.includes(",")) {
+      addTagsFromSegments(value);
+      return;
+    }
+
+    setTagInput(value);
+  };
+
+  const handleTagKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if ((event.key === "Enter" || event.key === "Tab") && tagInput.trim()) {
+      event.preventDefault();
+      addTagsFromSegments(`${tagInput},`);
+    }
+
+    if (event.key === "Backspace" && !tagInput && tags.length) {
+      event.preventDefault();
+      setTags(current => current.slice(0, current.length - 1));
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setTags(current => current.filter(tag => tag !== tagToRemove));
+  };
+
   return (
     <div className="container">
       <header>
@@ -150,12 +210,39 @@ export default function Home() {
               </div>
               <textarea rows={3} placeholder="Describe sauces, spices, texture pops, or plating notes" />
             </div>
-            <div className="tag-list">
-              {["crunchy", "bright", "comfort", "weeknight", "plant-based"].map(tag => (
-                <span key={tag} className="pill">
-                  + {tag}
-                </span>
-              ))}
+            <div>
+              <div className="label-row">
+                <span>Short description</span>
+                <span>Tease the flavor</span>
+              </div>
+              <input
+                placeholder="e.g. Smoky, sweet, and a little tangy — perfect with a crisp white."
+                value={description}
+                onChange={event => setDescription(event.target.value)}
+              />
+            </div>
+            <div>
+              <div className="label-row">
+                <span>Tags</span>
+                <span>Comma to add</span>
+              </div>
+              <div className="tag-input" onClick={() => tagInputRef.current?.focus()}>
+                {tags.map(tag => (
+                  <span key={tag} className="pill tag-pill">
+                    <span>{tag}</span>
+                    <button type="button" aria-label={`Remove ${tag}`} onClick={() => removeTag(tag)}>
+                      ×
+                    </button>
+                  </span>
+                ))}
+                <input
+                  ref={tagInputRef}
+                  value={tagInput}
+                  onChange={handleTagChange}
+                  onKeyDown={handleTagKeyDown}
+                  placeholder={tags.length ? "Add another tag" : "Add tags with commas"}
+                />
+              </div>
             </div>
             <div style={{ display: "flex", gap: "0.75rem" }}>
               <button type="button" className="button primary" style={{ flex: 1 }}>

@@ -267,6 +267,52 @@ input, textarea, select {
   font-size: 1rem;
 }
 
+.tag-input {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: text;
+}
+
+.tag-input input {
+  flex: 1;
+  min-width: 140px;
+  padding: 0.65rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.tag-input input:focus {
+  outline: none;
+}
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding-right: 0.65rem;
+}
+
+.tag-pill button {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.tag-pill button:hover {
+  color: #fff;
+}
+
 .label-row {
   display: flex;
   justify-content: space-between;
